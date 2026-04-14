@@ -306,48 +306,47 @@ useEffect(() => {
 
       {/* MAIN CONTENT AREA - Margin adjusts based on sidebar state */}
       <main className={`flex-1 ${isCollapsed ? 'ml-20' : 'ml-72'} p-12 transition-all duration-300 ease-in-out`}>
-        <header className="flex justify-between items-center mb-12">
-          <div>
-            <h1 className="text-4xl font-black text-slate-900 capitalize">
-              Welcome, {name || role}
-            </h1>
-            <p className="text-slate-500 mt-1">NexusPay Ecosystem Monitoring & Control</p>
-          </div>
-        </header>
-
-        {/* ... The rest of your tab rendering logic remains the same ... */}
-        {role === 'admin' && (
-          <div className="space-y-6">
-            {activeTab === 'overview' && (
-              <AdminView 
-                stats={stats} 
-                token={token} 
-                refreshDashboardStats={() => {
-                  request("/admin/stats", "GET", null, token).then(setStats);
-                }} 
-              />
-            )}
-
-      {activeTab === 'users' && (
-        <AdminView stats={stats} token={token} /> 
-      )}
-
-      {activeTab === 'merchants' && (
-        <MerchantHubView token={token} />
-      )}
-
-      {activeTab === 'terminals' && (
-        <TerminalFleetView token={token} />
-      )}
+  {/* Header Section */}
+  <header className="flex justify-between items-center mb-12">
+    <div className="animate-in fade-in slide-in-from-left-4 duration-500">
+      <h1 className="text-4xl font-black text-slate-900 capitalize tracking-tight">
+        Welcome, {name || role}
+      </h1>
+      <div className="flex items-center gap-2 mt-1">
+        <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
+        <p className="text-slate-500 text-sm font-medium">System Online • Monitoring Active</p>
+      </div>
     </div>
-  )}
 
-  {/* USER & MERCHANT SPECIFIC VIEWS */}
-  {role === 'user' && isAuthSynced && (
-    <UserView token={token} userName={name} userId={userId} request={request}/>
-  )}
-  
-  {role === 'merchant' && <MerchantView token={token} userName={name} />}  
+    {/* Optional Profile Quick-View */}
+    <div className="flex items-center gap-4 bg-white p-2 pr-6 rounded-2xl border border-slate-100 shadow-sm">
+      <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold">
+        {name?.charAt(0) || 'A'}
+      </div>
+      <div>
+        <p className="text-xs font-black text-slate-900 leading-none">{name}</p>
+        <p className="text-[10px] font-bold text-blue-600 uppercase mt-1 tracking-tighter">{role}</p>
+      </div>
+    </div>
+  </header>
+
+  {/* TAB CONTENT - Using a clean switch or conditional logic */}
+  <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+    {role === 'admin' && (
+      <>
+        {activeTab === 'overview' && <AdminView stats={stats} token={token} refreshDashboardStats={() => request("/admin/stats", "GET", null, token).then(setStats)} />}
+        {activeTab === 'users' && <AdminView stats={stats} token={token} />} 
+        {activeTab === 'merchants' && <MerchantHubView token={token} />}
+        {activeTab === 'terminals' && <TerminalFleetView token={token} />}
+      </>
+    )}
+
+    {role === 'user' && isAuthSynced && (
+      <UserView token={token} userName={name} userId={userId} request={request}/>
+    )}
+    
+    {role === 'merchant' && <MerchantView token={token} userName={name} />}
+  </div>
 </main>
     </div>
   );
