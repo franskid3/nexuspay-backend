@@ -1,0 +1,104 @@
+rfid-backend/
+├── src/
+│   ├── config/
+│   │   └── firebase.js       # Firebase Admin SDK initialization
+│   ├── controllers/
+│   │   ├── authController.js   # Login, Password Hashing
+│   │   ├── paymentController.js# RFID Tap logic, Balance checks
+│   │   └── adminController.js  # Linking terminals/cards
+│   ├── middleware/
+│   │   └── authMiddleware.js   # Protects routes (Admin only, etc.)
+│   ├── routes/
+│   │   ├── api.js              # Main API Route definitions
+│   │   └── hardware.js         # Routes specifically for ESP32
+│   ├── utils/
+│   │   └── hash.js             # Bcrypt logic for PIN/Passwords
+│   └── index.js                # Entry point (Express app)
+├── .env                        # Secrets (JWT_SECRET, etc.)
+└── serviceAccountKey.json      # Firebase Secret
+
+
+admin-panel/
+├── src/
+│   ├── components/
+│   │   ├── ui/                 # Reusable buttons, inputs, cards
+│   │   ├── shared/             # Sidebar, Navbar, Layouts
+│   │   └── dashboard/          # Role-specific widgets
+│   ├── hooks/
+│   │   └── useAuth.js          # Custom hook to manage roles/session
+│   ├── pages/
+│   │   ├── Login.jsx           # Unified Login page
+│   │   ├── Admin/              # Admin-only pages (User Mgmt, Terminal Mgmt)
+│   │   ├── Merchant/           # Merchant-only pages (Sales, My Terminals)
+│   │   └── User/               # User-only pages (Wallet, Card Security)
+│   ├── services/
+│   │   └── api.js              # Axios/Fetch wrapper for backend calls
+│   ├── App.jsx                 # Routing & Role-based Protection logic
+│   └── main.jsx
+└── tailwind.config.js          # Tailwind v4 configuration
+
+
+1. The Core Database Schema
+users Collection
+Document ID: (Auto-generated UUID, e.g., USR_99221)
+
+name: String
+
+phone: String (Unique)
+
+email: String
+
+balance: Number (Current funds)
+
+password: String (Hashed - for dashboard login)
+
+pin: String (Hashed - 4 or 6 digits for terminal transactions)
+
+linkedCard: String (Stores the RFID UID currently assigned to this user)
+
+status: String ("active", "blocked")
+
+role: "user"
+
+merchants Collection
+Document ID: (Merchant ID, e.g., M_7788)
+
+businessName: String
+
+ownerName: String
+
+email: String
+
+accountBalance: Number (Total earnings available for withdrawal)
+
+terminalCount: Number (Cached count of linked ESP32s)
+
+status: String ("active", "suspended")
+
+role: "merchant"
+
+terminals Collection
+Document ID: (ESP32 MAC Address, e.g., 24:0A:C4:9A:58:34)
+
+merchantId: String (Points to a document in merchants)
+
+label: String (e.g., "Main Gate" or "Counter 1")
+
+status: String ("active", "maintenance")
+
+lastSeen: Timestamp
+
+transactions Collection
+Document ID: (Auto-generated)
+
+senderUserId: String (The UUID from the users collection)
+
+receiverMerchantId: String (The ID from merchants)
+
+terminalId: String (The MAC address used)
+
+amount: Number
+
+type: String ("payment", "refund", "deposit")
+
+timestamp: ServerTimestamp
