@@ -5,7 +5,7 @@ import { messaging } from "./firebase-config";
 import UserView from './components/UserView';
 import { 
   Users, CreditCard, Activity, LogOut, ShieldCheck, 
-  Store, Tablet, History, Lock, PlusCircle, AlertCircle ,Shield
+  Store, Tablet, History, Lock, PlusCircle, AlertCircle ,Shield,ChevronLeft, ChevronRight
 } from 'lucide-react';
 
 // --- CONFIGURATION ---
@@ -41,6 +41,7 @@ export default function App() {
   });
   const [activeTab, setActiveTab] = useState('overview');
   const [isAuthSynced, setIsAuthSynced] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const setupNotifications = async () => {
   try {
         // We don't need 'const messaging = getMessaging()' here anymore
@@ -87,6 +88,7 @@ useEffect(() => {
     setupNotifications();
   }
 }, [token, role]); // This triggers whenever the token or role changes
+      
       
     // --- AUTH ACTIONS ---
       const handleLogin = async (e) => {
@@ -153,9 +155,11 @@ useEffect(() => {
     }
   }, [token, role]);
 
+  
   // --- LOGIN / REGISTRATION UI ---
   if (!token) {
     return (
+      
       <div className="min-h-screen flex items-center justify-center bg-slate-900 p-4">
         <div className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md border-t-8 border-blue-600">
           <div className="flex justify-center mb-6 text-blue-600">
@@ -230,40 +234,59 @@ useEffect(() => {
   // --- DASHBOARD UI ---
   return (
     <div className="min-h-screen flex bg-[#F8FAFC]">
-      <aside className="w-72 bg-slate-900 text-white flex flex-col fixed h-full shadow-2xl z-20">
-        <div className="p-8">
-          <div className="flex items-center gap-3 mb-10">
-            <div className="bg-blue-600 p-2 rounded-lg">
+      {/* SIDEBAR */}
+      <aside 
+        className={`${isCollapsed ? 'w-20' : 'w-72'} bg-slate-900 text-white flex flex-col fixed h-full shadow-2xl z-20 transition-all duration-300 ease-in-out`}
+      >
+        {/* COLLAPSE TOGGLE BUTTON */}
+        <button 
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="absolute -right-3 top-10 bg-blue-600 text-white rounded-full p-1 shadow-xl hover:scale-110 transition-transform z-30"
+        >
+          {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+        </button>
+
+        <div className={`p-8 ${isCollapsed ? 'px-4' : ''}`}>
+          <div className="flex items-center gap-3 mb-10 overflow-hidden">
+            <div className="bg-blue-600 p-2 rounded-lg shrink-0">
               <CreditCard size={24} />
             </div>
-            <span className="text-xl font-black tracking-tighter uppercase">NEXUS<span className="text-blue-500">PAY</span></span>
+            {!isCollapsed && (
+              <span className="text-xl font-black tracking-tighter uppercase whitespace-nowrap">
+                NEXUS<span className="text-blue-500">PAY</span>
+              </span>
+            )}
           </div>
           
           <nav className="space-y-2">
             <SidebarItem 
               icon={<Activity size={20} />} 
-              label="Overview" 
+              label={!isCollapsed ? "Overview" : ""} 
               active={activeTab === 'overview'} 
               onClick={() => setActiveTab('overview')} 
             />
             {role === 'admin' && (
               <>
-                <div className="pt-4 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Management</div>
+                {!isCollapsed && (
+                  <div className="pt-4 pb-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest whitespace-nowrap">
+                    Management
+                  </div>
+                )}
                 <SidebarItem 
                   icon={<Users size={20} />} 
-                  label="User Registry" 
+                  label={!isCollapsed ? "User Registry" : ""} 
                   active={activeTab === 'users'} 
                   onClick={() => setActiveTab('users')} 
                 />
                 <SidebarItem 
                   icon={<Store size={20} />} 
-                  label="Merchant Hub" 
+                  label={!isCollapsed ? "Merchant Hub" : ""} 
                   active={activeTab === 'merchants'} 
                   onClick={() => setActiveTab('merchants')} 
                 />
                 <SidebarItem 
                   icon={<Tablet size={20} />} 
-                  label="Terminal Fleet" 
+                  label={!isCollapsed ? "Terminal Fleet" : ""} 
                   active={activeTab === 'terminals'} 
                   onClick={() => setActiveTab('terminals')} 
                 />
@@ -272,33 +295,38 @@ useEffect(() => {
           </nav>
         </div>
 
-        <button onClick={handleLogout} className="mt-auto m-6 flex items-center gap-3 p-4 text-red-400 hover:bg-red-500/10 rounded-2xl transition-all font-bold">
-          <LogOut size={20} /> Logout
+        <button 
+          onClick={handleLogout} 
+          className={`mt-auto m-6 flex items-center gap-3 p-4 text-red-400 hover:bg-red-500/10 rounded-2xl transition-all font-bold ${isCollapsed ? 'justify-center p-2' : ''}`}
+        >
+          <LogOut size={20} /> 
+          {!isCollapsed && "Logout"}
         </button>
       </aside>
 
-      <main className="flex-1 ml-72 p-12">
-  <header className="flex justify-between items-center mb-12">
-    <div>
-      <h1 className="text-4xl font-black text-slate-900 capitalize">
-        Welcome, {name || role}
-      </h1>
-      <p className="text-slate-500 mt-1">NexusPay Ecosystem Monitoring & Control</p>
-    </div>
-  </header>
+      {/* MAIN CONTENT AREA - Margin adjusts based on sidebar state */}
+      <main className={`flex-1 ${isCollapsed ? 'ml-20' : 'ml-72'} p-12 transition-all duration-300 ease-in-out`}>
+        <header className="flex justify-between items-center mb-12">
+          <div>
+            <h1 className="text-4xl font-black text-slate-900 capitalize">
+              Welcome, {name || role}
+            </h1>
+            <p className="text-slate-500 mt-1">NexusPay Ecosystem Monitoring & Control</p>
+          </div>
+        </header>
 
-  {/* ADMIN TAB NAVIGATION */}
-  {role === 'admin' && (
-    <div className="space-y-6">
-      {activeTab === 'overview' && (
-        <AdminView 
-          stats={stats} 
-          token={token} 
-          refreshDashboardStats={() => {
-            request("/admin/stats", "GET", null, token).then(setStats);
-          }} 
-        />
-      )}
+        {/* ... The rest of your tab rendering logic remains the same ... */}
+        {role === 'admin' && (
+          <div className="space-y-6">
+            {activeTab === 'overview' && (
+              <AdminView 
+                stats={stats} 
+                token={token} 
+                refreshDashboardStats={() => {
+                  request("/admin/stats", "GET", null, token).then(setStats);
+                }} 
+              />
+            )}
 
       {activeTab === 'users' && (
         <AdminView stats={stats} token={token} /> 
@@ -393,7 +421,7 @@ function AdminView({ stats, token, refreshDashboardStats }) {
         <StatCard label="Client Base" value={stats.totalUsers || 0} icon={<Users color="#3b82f6" />} />
         <StatCard label="Business Partners" value={stats.totalMerchants || 0} icon={<Store color="#10b981" />} />
         <StatCard label="Active Nodes" value={stats.totalTerminals || 0} icon={<Tablet color="#8b5cf6" />} />
-        <StatCard label="Network Volume" value={`₦${(stats.revenue || 0).toLocaleString()}`} icon={<Activity color="#f59e0b" />} />
+        <StatCard label="Network Volume" value={`₦${(stats.networkVolume || 0).toLocaleString()}`} icon={<Activity color="#f59e0b" />} />
       </div>
 
       <section className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
@@ -949,3 +977,6 @@ function TerminalFleetView({ token }) {
     </div>
   );
 }
+
+
+

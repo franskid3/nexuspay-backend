@@ -9,7 +9,10 @@ const apiRoutes = require('./routes/api');
 const app = express();
 
 // --- MIDDLEWARE ---
-app.use(cors());
+app.use(cors({
+  origin: "*", // For a project demo, "*" (all) is easiest, though less secure than naming the specific URL
+  credentials: true
+}));
 app.use(express.json());
 
 // --- ROUTES ---

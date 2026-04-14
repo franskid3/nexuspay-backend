@@ -13,7 +13,7 @@ const {
   getAllUsers  ,
   toggleUserStatus,    // Added this based on your routes below
   getAllTerminals,   // Added this based on your routes below
-  getAllMerchants    // Added this based on your routes below
+  getAllMerchants,    // Added this based on your routes below
 } = require('../controllers/adminController');
 const { getAdminStats } = require('../controllers/dataController');
 const { getMerchantData } = require('../controllers/merchantController');
