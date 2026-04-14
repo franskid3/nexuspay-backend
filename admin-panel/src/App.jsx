@@ -9,7 +9,8 @@ import {
 } from 'lucide-react';
 
 // --- CONFIGURATION ---
-const API_BASE = "http://localhost:5000/api";
+// App.jsx (Frontend)
+const API_BASE = "https://nexuspay-backend-gmyy.onrender.com/api";;
 
 // --- GLOBAL API HELPER (Fixes useEffect dependency warnings) ---
 const request = async (endpoint, method = "GET", body = null, token = null) => {
