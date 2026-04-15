@@ -2,6 +2,7 @@ const { db, admin } = require('../config/firebase'); // admin is already here
 const bcrypt = require('bcryptjs');
 
 const processTap = async (req, res) => {
+  console.log("LOG: Request received with body:", req.body);
   const { rfidUid, pin, terminalMac, amount } = req.body;
 
   if (!amount || Number(amount) <= 0) {
@@ -16,6 +17,7 @@ const processTap = async (req, res) => {
     // 1. Identify Terminal
     const terminalDoc = await db.collection('terminals').doc(terminalMac).get();
     if (!terminalDoc.exists) {
+      console.log("LOG: Missing fields");
       return res.status(404).json({ status: "error", errorCode: "ERR_TERM", message: "Terminal unauthorized" });
     }
     const { merchantId } = terminalDoc.data();
@@ -23,6 +25,7 @@ const processTap = async (req, res) => {
     // 2. Identify User
     const userQuery = await db.collection('users').where('linkedCard', '==', rfidUid).limit(1).get();
     if (userQuery.empty) {
+      console.log("LOG: No user found with RFID:", rfidUid);
       return res.status(404).json({ status: "error", errorCode: "ERR_CARD", message: "Card not registered" });
     }
     
@@ -32,6 +35,7 @@ const processTap = async (req, res) => {
 
     // 3. Security Checks
     if (userData.status === 'blocked') {
+      console.log("LOG: Blocked card attempt for user:", userId);
       return res.status(403).json({ 
         status: "error", 
         errorCode: "ERR_LOCK", 
@@ -40,6 +44,7 @@ const processTap = async (req, res) => {
     }
 
     if (!userData.pin) {
+      console.log("LOG: User has no PIN set:", userId);
       return res.status(401).json({ 
         status: "error", 
         errorCode: "ERR_NO_PIN", 
@@ -49,6 +54,7 @@ const processTap = async (req, res) => {
 
     const isPinValid = await bcrypt.compare(pin.toString(), userData.pin); 
     if (!isPinValid) {
+      console.log("LOG: Invalid PIN attempt for user:", userId);
       return res.status(401).json({ 
         status: "error", 
         errorCode: "ERR_PIN", 
@@ -58,6 +64,7 @@ const processTap = async (req, res) => {
 
     const currentBalance = userData.accountBalance || 0; 
     if (currentBalance < amount) {
+      console.log(`LOG: Insufficient balance for user ${userId}. Current: ${currentBalance}, Required: ${amount}`);
       return res.status(400).json({ status: "error", errorCode: "ERR_BAL", message: "Insufficient balance" });
     }
 
