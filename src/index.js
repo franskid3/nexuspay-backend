@@ -7,13 +7,13 @@ const cors = require('cors');
 const apiRoutes = require('./routes/api');
 
 const app = express();
-
+app.use(express.json());
 // --- MIDDLEWARE ---
 app.use(cors({
   origin: "*", // For a project demo, "*" (all) is easiest, though less secure than naming the specific URL
   credentials: true
 }));
-app.use(express.json());
+
 
 // --- ROUTES ---
 // This one line handles EVERYTHING inside routes/api.js
