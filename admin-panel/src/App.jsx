@@ -169,7 +169,7 @@ useEffect(() => {
             </div>
           </div>
           <h2 className="text-2xl font-bold text-center text-slate-800 mb-2">
-            {authMode === 'login' ? "Welcome to NexusPay" : "System Enrollment"}
+            {authMode === 'login' ? "Welcome to UniPay" : "System Enrollment"}
           </h2>
           <p className="text-center text-slate-500 mb-8 italic text-sm">
             Secure Terminal Management Infrastructure
@@ -254,7 +254,7 @@ useEffect(() => {
             </div>
             {!isCollapsed && (
               <span className="text-xl font-black tracking-tighter uppercase whitespace-nowrap">
-                NEXUS<span className="text-blue-500">PAY</span>
+                UNI<span className="text-blue-500">PAY</span>
               </span>
             )}
           </div>
