@@ -70,7 +70,7 @@ const processTap = async (req, res) => {
 
     // Get Business Name
     const merchantDoc = await db.collection('users').doc(merchantId).get();
-    const businessName = merchantDoc.exists ? merchantDoc.data().name : "NexusPay Merchant";
+    const businessName = merchantDoc.exists ? merchantDoc.data().name : "UniPay Merchant";
 
     // 4. ATOMIC TRANSACTION
     await db.runTransaction(async (t) => {
